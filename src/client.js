@@ -1,16 +1,13 @@
 const axios = require('axios');
 
 class Client {
-    constructor(apiKey, baseURL) {
-        this.apiKey = apiKey;
+    constructor(password, baseURL) {
+        this.password = password;
         this.baseURL = baseURL;
     }
 
     async sendHttpRequest(prompt, definition) {
         let url = this.baseURL;
-        if (definition.req && definition.req.url) {
-            url = definition.req.url;
-        }
 
         const requestBody = {
             prompt: prompt,
@@ -18,10 +15,10 @@ class Client {
         };
 
         try {
-            const response = await axios.post(url, requestBody, {
+            const response = await axios.post(url+"/objectGen", requestBody, {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.apiKey}`
+                    'Authorization': `Bearer ${this.password}`
                 }
             });
             return response;

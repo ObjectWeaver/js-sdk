@@ -1,87 +1,278 @@
-# object-generation-js
+<div align="center">
 
-`object-generation-js` is a Node.js package that provides a client for interacting with APIs using JSON schema definitions. It includes utilities to create requests and process responses, particularly for scenarios involving structured JSON data.
+# <span style="font-family: 'Roboto', sans-serif;">ObjectWeaver JavaScript SDK</span>
 
+[![License](https://img.shields.io/badge/License-GNU-blue.svg)](https://github.com/ObjectWeaver/js-sdk/blob/main/LICENSE)
+[![Documentation](https://img.shields.io/badge/Docs-objectweaver.dev-orange.svg)](https://objectweaver.dev/docs)
 
-For additional instructions for how to use this library and the connecting docker container please visit https://go-multiple.com/console
+</div>
 
-## Features
-
-- Send HTTP requests with JSON schema-based payloads.
-- Define complex JSON structures using `Definition`.
-- Support for various HTTP methods and custom headers.
-- Easily handle responses with a predefined structure.
+This module provides a client implementation for sending JSON definitions via HTTP POST requests. It is designed to be simple and easy to integrate into your existing Node.js projects.
 
 ## Installation
-
-You can install the package using npm:
 
 ```bash
 npm install object-generation-js
 ```
 
-## Quick Start
-
-### Importing the Module
-
-First, import the required classes from the `json-schema-client` package.
+To use this library you will need to import it in the below format:
 
 ```javascript
-const { Client, Definition, RequestFormat, Focus, Res } = require('json-schema-client');
+const {
+    Client,
+    Definition,
+    RequestFormat,
+    Focus,
+    TextToSpeech,
+    SpeechToText,
+    Image,
+    SendImage,
+    DecisionPoint,
+    ScoringCriteria,
+    ModelConfig
+} = require('object-generation-js');
 ```
 
-### Creating a Client Instance
+## Guide: Using JavaScript Client to Send JSON Definitions
 
-Create a new client instance with your API key and base URL.
+This guide demonstrates how to create a JavaScript client that sends JSON definitions using HTTP POST requests.
+
+### Step 1: Define the Client Class
+
+The `Client` class manages the API connection.
 
 ```javascript
-const apiKey = 'your-api-key';
-const baseURL = 'https://your-api-url.com';
-
-const client = new Client(apiKey, baseURL);
+class Client {
+    constructor(password, baseURL) {
+        this.password = password;
+        this.baseURL = baseURL;
+    }
+}
 ```
 
-### Defining a JSON Schema
+### Step 2: Initialize a New Client
 
-Define the JSON schema that will be used to structure the request payload.
+Create a new client instance with your API password and base URL.
 
 ```javascript
+// Initialize a new client with your credentials
+const password = 'your-password';
+const url = 'your-container-url';
+const client = new Client(password, url);
+```
+
+### Step 3: Send Requests
+
+Use the `sendRequest` method to send a POST request with a JSON-encoded definition.
+
+```javascript
+// SendRequest sends the prompt and definition, and returns the parsed response
+async function sendRequest(prompt, definition) {
+    const response = await client.sendRequest(prompt, definition);
+    return response;
+}
+```
+
+### Step 4: Example Usage
+
+Demonstrate how to use the `Client` to send a definition.
+
+```javascript
+// Example usage
+async function exampleUsage() {
+    // Initialize a new client with your credentials
+    const url = 'your-container-url';
+    const password = 'your-password';
+    const client = new Client(password, url);
+
+    // Define a sample definition
+    const definition = new Definition({
+        type: 'object',
+        instruction: 'Sample instruction for the definition.',
+        properties: {
+            property1: new Definition({
+                type: 'string',
+                instruction: 'Description of property1'
+            }),
+            property2: new Definition({
+                type: 'number',
+                instruction: 'Description of property2'
+            })
+        }
+    });
+
+    // Send the request
+    try {
+        const response = await client.sendRequest('Generate a sample object', definition);
+        console.log('Response Data:', response.data);
+        console.log('Cost in USD:', response.usdCost);
+        console.log('Detailed Data:', response.detailedData);
+    } catch (err) {
+        console.error('Error sending request:', err.message);
+    }
+}
+```
+
+## Advanced Features
+
+### Audio Processing
+
+#### Text-to-Speech
+
+```javascript
+const tts = new TextToSpeech({
+    model: 'tts-1',
+    stringToAudio: 'Hello, world!',
+    format: 'mp3',
+    voice: 'alloy'
+});
+
 const definition = new Definition({
-    type: 'object',
-    instruction: 'Generate a response based on the prompt',
-    properties: {
-        name: { type: 'string' },
-        age: { type: 'number' }
-    },
-    required: ['name']
+    type: 'string',
+    instruction: 'Generate text for audio',
+    textToSpeech: tts
 });
 ```
 
-### Sending a Request
-
-Use the `sendRequest` method of the `Client` to send the request with a prompt and the defined schema.
+#### Speech-to-Text
 
 ```javascript
-const prompt = 'Please generate a profile';
-client.sendRequest(prompt, definition)
-    .then(response => {
-        console.log('Response Data:', response.data);
-        console.log('Cost in USD:', response.usdCost);
-    })
-    .catch(err => {
-        console.error('Error:', err.message);
-    });
+const stt = new SpeechToText({
+    model: 'whisper-1',
+    audioToTranscribe: audioBuffer,
+    language: 'en',
+    format: 'json',
+    toString: true
+});
+
+const definition = new Definition({
+    type: 'string',
+    instruction: 'Transcribe audio',
+    speechToText: stt
+});
 ```
 
-### Handling Responses
+### Image Generation
 
-The response is automatically parsed and returned as an object with `data` and `usdCost` properties.
+```javascript
+const imageGen = new Image({
+    model: 'dall-e-3',
+    size: '1024x1024'
+});
 
-## Advanced Usage
+const definition = new Definition({
+    type: 'string',
+    instruction: 'Generate an image description',
+    image: imageGen
+});
+```
+
+### Decision Points and Conditional Logic
+
+```javascript
+const { DecisionPoint, ConditionalBranch, Condition } = require('object-generation-js');
+
+const condition = new Condition({
+    field: 'score',
+    operator: 'greater_than',
+    numberValue: 0.8
+});
+
+const branch = new ConditionalBranch({
+    name: 'high_score',
+    conditions: [condition],
+    then: new Definition({
+        type: 'string',
+        instruction: 'Generate detailed response'
+    }),
+    priority: 1
+});
+
+const decisionPoint = new DecisionPoint({
+    name: 'quality_check',
+    evaluationPrompt: 'Evaluate the quality',
+    branches: [branch],
+    strategy: 'first_match'
+});
+
+const definition = new Definition({
+    type: 'object',
+    instruction: 'Process with decision logic',
+    decisionPoint: decisionPoint
+});
+```
+
+### Scoring and Validation
+
+```javascript
+const { ScoringCriteria, ScoringDimension, ScoreScale, EpistemicValidation } = require('object-generation-js');
+
+const dimension = new ScoringDimension({
+    description: 'Accuracy',
+    scale: new ScoreScale({ min: 0, max: 100 }),
+    type: 'numeric',
+    weight: 0.5
+});
+
+const scoring = new ScoringCriteria({
+    dimensions: { accuracy: dimension },
+    evaluationModel: 'gpt-4',
+    aggregationMethod: 'weighted_average'
+});
+
+const epistemic = new EpistemicValidation({
+    active: true,
+    judges: 3
+});
+
+const definition = new Definition({
+    type: 'object',
+    instruction: 'Generate with scoring',
+    scoringCriteria: scoring,
+    epistemic: epistemic
+});
+```
+
+### Model Configuration
+
+```javascript
+const modelConfig = new ModelConfig({
+    maxCompletionTokens: 1000,
+    temperature: 0.7,
+    topP: 0.9,
+    presencePenalty: 0.0,
+    frequencyPenalty: 0.0
+});
+
+const definition = new Definition({
+    type: 'object',
+    instruction: 'Generate with custom model config',
+    modelConfig: modelConfig
+});
+```
+
+### Streaming Requests
+
+```javascript
+// Stream generated objects in real-time
+await client.streamRequest(
+    'Generate streaming data',
+    definition,
+    (data) => {
+        console.log('Received chunk:', data.data);
+        console.log('Status:', data.status);
+        console.log('Cost so far:', data.usdCost);
+    },
+    (error) => {
+        console.error('Stream error:', error);
+    },
+    () => {
+        console.log('Stream completed');
+    }
+);
+```
 
 ### Custom Request Format
-
-You can define a custom request format using the `RequestFormat` class.
 
 ```javascript
 const requestFormat = new RequestFormat({
@@ -89,15 +280,18 @@ const requestFormat = new RequestFormat({
     method: 'POST',
     headers: { 'Custom-Header': 'value' },
     body: { additional: 'data' },
-    authorization: 'Bearer your-token'
+    authorization: 'Bearer your-token',
+    requireFields: ['field1', 'field2']
 });
 
-definition.req = requestFormat;
+const definition = new Definition({
+    type: 'object',
+    instruction: 'Generate with custom request',
+    req: requestFormat
+});
 ```
 
-### Using Focus for Narrow Queries
-
-The `Focus` class allows you to narrow down the fields you want to extract from the JSON schema.
+### Focus for Targeted Generation
 
 ```javascript
 const focus = new Focus({
@@ -106,23 +300,47 @@ const focus = new Focus({
     keepOriginal: true
 });
 
-definition.narrowFocus = focus;
+const definition = new Definition({
+    type: 'object',
+    instruction: 'Generate focused data',
+    narrowFocus: focus
+});
 ```
 
-### Processing HTTP Responses
+## Response Structure
 
-You can process HTTP responses using the `Res` class.
+The SDK returns responses with the following structure:
 
 ```javascript
-client.sendRequest(prompt, definition)
-    .then(response => {
-        const result = Res.extractValue(response);
-        console.log('Extracted Value:', result.value);
-    })
-    .catch(err => {
-        console.error('Error:', err.message);
-    });
+{
+    data: { /* generated object */ },
+    usdCost: 0.0023,
+    detailedData: {
+        fieldName: {
+            value: { /* field value */ },
+            metadata: {
+                tokensUsed: 150,
+                cost: 0.0015,
+                modelUsed: 'gpt-4',
+                choices: [
+                    {
+                        score: 95,
+                        confidence: 0.92,
+                        value: { /* choice value */ },
+                        embedding: [0.1, 0.2, ...]
+                    }
+                ]
+            }
+        }
+    }
+}
 ```
+
+## Conclusion
+
+This guide provides a structured approach to creating a JavaScript client for sending JSON definitions via HTTP POST requests. Ensure to adapt the `Definition` struct and example usage to fit your specific API requirements and data structures.
+
+For additional instructions on how to use this library and the connecting docker container, please visit [objectweaver.dev](https://objectweaver.dev).
 
 ## Contributing
 

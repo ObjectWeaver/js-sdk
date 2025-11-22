@@ -36,10 +36,55 @@ class Client {
 
             return {
                 data: response.data.data,
-                usdCost: response.data.usdCost
+                usdCost: response.data.usdCost,
+                detailedData: response.data.detailedData || {}
             };
         } catch (err) {
             throw new Error(`Error processing response: ${err.message}`);
+        }
+    }
+
+    async streamRequest(prompt, definition, onData, onError, onComplete) {
+        let url = this.baseURL;
+
+        const requestBody = {
+            prompt: prompt,
+            definition: definition
+        };
+
+        try {
+            const response = await axios.post(url+"/streamObjectGen", requestBody, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.password}`
+                },
+                responseType: 'stream'
+            });
+
+            response.data.on('data', (chunk) => {
+                try {
+                    const data = JSON.parse(chunk.toString());
+                    onData({
+                        data: data.data,
+                        usdCost: data.usdCost,
+                        status: data.status,
+                        detailedData: data.detailedData || {}
+                    });
+                } catch (err) {
+                    onError(err);
+                }
+            });
+
+            response.data.on('end', () => {
+                if (onComplete) onComplete();
+            });
+
+            response.data.on('error', (err) => {
+                onError(err);
+            });
+
+        } catch (err) {
+            onError(err);
         }
     }
 }

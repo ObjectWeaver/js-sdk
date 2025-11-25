@@ -12,7 +12,7 @@ This module provides a client implementation for sending JSON definitions via HT
 ## Installation
 
 ```bash
-npm install object-generation-js
+npm install objectweaver
 ```
 
 To use this library you will need to import it in the below format:
@@ -30,7 +30,7 @@ const {
     DecisionPoint,
     ScoringCriteria,
     ModelConfig
-} = require('object-generation-js');
+} = require('objectweaver');
 ```
 
 ## Guide: Using JavaScript Client to Send JSON Definitions
@@ -170,7 +170,7 @@ const definition = new Definition({
 ### Decision Points and Conditional Logic
 
 ```javascript
-const { DecisionPoint, ConditionalBranch, Condition } = require('object-generation-js');
+const { DecisionPoint, ConditionalBranch, Condition } = require('objectweaver');
 
 const condition = new Condition({
     field: 'score',
@@ -205,7 +205,7 @@ const definition = new Definition({
 ### Scoring and Validation
 
 ```javascript
-const { ScoringCriteria, ScoringDimension, ScoreScale, EpistemicValidation } = require('object-generation-js');
+const { ScoringCriteria, ScoringDimension, ScoreScale, EpistemicValidation } = require('objectweaver');
 
 const dimension = new ScoringDimension({
     description: 'Accuracy',

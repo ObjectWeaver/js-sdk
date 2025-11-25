@@ -2,12 +2,12 @@
 
 ## Installation
 ```bash
-npm install object-generation-js
+npm install objectweaver
 ```
 
 ## Basic Usage
 ```javascript
-const { Client, Definition } = require('object-generation-js');
+const { Client, Definition } = require('objectweaver');
 
 const client = new Client('password', 'https://api-url.com');
 const definition = new Definition({
@@ -52,7 +52,7 @@ const response = await client.sendRequest('prompt', definition);
 
 ## Common Patterns
 
-### Simple Object Generation
+### Simple ObjectWeaver Usage
 ```javascript
 const def = new Definition({
     type: 'object',

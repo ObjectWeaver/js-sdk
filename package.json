@@ -1,6 +1,6 @@
 {
   "name": "objectweaver",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "This module provides a client implementation for sending JSON definitions via HTTP POST requests.",
   "repository": {
     "type": "git",

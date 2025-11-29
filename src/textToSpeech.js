@@ -1,3 +1,11 @@
+// Audio format constants
+const TEXT = "text";
+const SRT = "srt";
+const VTT = "vtt";
+const JSON = "json";
+const VERBOSE_JSON = "verbose-json";
+
+// TextToSpeech - the DataType to use with this type is Byte
 class TextToSpeech {
     constructor({ model, stringToAudio, format, voice }) {
         this.model = model || '';
@@ -17,3 +25,8 @@ class TextToSpeech {
 }
 
 module.exports = TextToSpeech;
+module.exports.TEXT = TEXT;
+module.exports.SRT = SRT;
+module.exports.VTT = VTT;
+module.exports.JSON = JSON;
+module.exports.VERBOSE_JSON = VERBOSE_JSON;
